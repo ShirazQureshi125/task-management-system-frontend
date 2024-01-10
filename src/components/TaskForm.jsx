@@ -209,10 +209,12 @@ const TaskForm = () => {
                       )}
                     />
                   </Grid>
+                  <div className="div">
+
                   <Grid
                     item
                     xs={12}
-                    style={{ paddingTop: "20px", marginLeft: "76rem" }}
+                    style={{ paddingTop: "20px"}}
                   >
                     <Button
                       type="submit"
@@ -227,6 +229,7 @@ const TaskForm = () => {
                       Create Task
                     </Button>
                   </Grid>
+                  </div>
                 </Grid>
               </form>
             </Paper>
