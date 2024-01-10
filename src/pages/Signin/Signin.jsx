@@ -7,13 +7,12 @@ import {
   Button,
   MenuItem,
   Typography,
- 
+  
 } from "@mui/material";
-import logoImage from "../../assets/images/Logo.png";
 import { Link } from "react-router-dom";
-const roles = ["User", "Manager", "Admin"];
+import logoImage from "../../assets/images/Logo.png";
 
-const SignUp = () => {
+const SignIn = () => {
   const {
     control,
     handleSubmit,
@@ -73,63 +72,7 @@ const SignUp = () => {
             </Grid>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Controller
-                    name="fullName"
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: "Full Name is required" }}
-                    render={({ field }) => (
-                      <TextField
-                        label="Full Name"
-                        variant="outlined"
-                        fullWidth
-                        {...field}
-                        error={!!errors.fullName}
-                        helperText={errors.fullName?.message}
-                        sx={{
-                          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-                            { borderColor: "rgba(102, 108, 255, 1)" },
-                          "& .MuiInputLabel-root.Mui-focused": {
-                            color: "rgba(102, 108, 255, 1)",
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Controller
-                    name="role"
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: "Role is required" }}
-                    render={({ field }) => (
-                      <TextField
-                        select
-                        label="Role"
-                        variant="outlined"
-                        fullWidth
-                        {...field}
-                        error={!!errors.role}
-                        helperText={errors.role?.message}
-                        sx={{
-                          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-                            { borderColor: "rgba(102, 108, 255, 1)" },
-                          "& .MuiInputLabel-root.Mui-focused": {
-                            color: "rgba(102, 108, 255, 1)",
-                          },
-                        }}
-                      >
-                        {roles.map((role) => (
-                          <MenuItem key={role} value={role.toLowerCase()}>
-                            {role}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    )}
-                  />
-                </Grid>
+                
                 <Grid item xs={12}>
                   <Controller
                     name="email"
@@ -214,16 +157,16 @@ const SignUp = () => {
                       fontSize: "20px",
                     }}
                   >
-                    Already have an account?{" "}
+                    Don't have an account?{" "}
                     <Link
-                      to="/signin"
+                      to="/"
                       color="primary"
                       style={{
                         color: "rgba(102, 108, 255, 1)",
                         textDecoration: "none",
                       }}
                     >
-                      Sign In
+                      Sign Up
                     </Link>
                   </Typography>
                 </Grid>
@@ -236,4 +179,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignIn;
