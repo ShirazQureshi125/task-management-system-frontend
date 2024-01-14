@@ -7,21 +7,63 @@ import {
   Button,
   MenuItem,
   Typography,
-  
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/images/Logo.png";
-
+import axios from "axios";
 const SignIn = () => {
+  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    // Handle form submission logic here
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        "https://rose-jittery-mussel.cyclic.app/api/login-user",
+        data
+      );
+      if (response.status === 200) {
+        alert("User login successfully");
+        const { email, token } = response.data;
+        const userData = {
+          email,
+          token,
+        };
+        //console.log(response.data.user.role)
+
+        localStorage.setItem("userToken", JSON.stringify(response.data.token));
+        localStorage.setItem(
+          "userRole",
+          JSON.stringify(response.data.user.role)
+        );
+        localStorage.setItem("userData", JSON.stringify(response.data.user.id));
+
+        const userRole = localStorage.getItem("userRole");
+
+        if (userRole === "admin") {
+          // Navigate to admin route
+          navigate("/task-page");
+        } else   {
+          // Navigate to user route
+          navigate("/user-task");
+        }
+        const UserRole = localStorage.getItem("userRole");
+        console.log(UserRole);
+      }
+    } catch (err) {
+      console.log("Errors", err.response.data.error);
+      console.log(err);
+      if (err.response.status === 401) {
+        alert("Invalid Passord");
+      } else if (err.response.status === 404) {
+        alert("User not found");
+      } else {
+        alert("Something Went Wrong");
+      }
+    }
   };
 
   return (
@@ -72,7 +114,6 @@ const SignIn = () => {
             </Grid>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2}>
-                
                 <Grid item xs={12}>
                   <Controller
                     name="email"
@@ -111,7 +152,17 @@ const SignIn = () => {
                     name="password"
                     control={control}
                     defaultValue=""
-                    rules={{ required: "Password is required" }}
+                    rules={{
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                      maxLength: {
+                        value: 12,
+                        message: "Password must be at most 12 characters",
+                      },
+                    }}
                     render={({ field }) => (
                       <TextField
                         label="Password"
@@ -143,7 +194,7 @@ const SignIn = () => {
                       padding: "14px",
                     }}
                   >
-                    Sign up
+                    Sign in
                   </Button>
                 </Grid>
                 <Grid item xs={12} style={{ paddingBottom: "20px" }}>
@@ -159,7 +210,7 @@ const SignIn = () => {
                   >
                     Don't have an account?{" "}
                     <Link
-                      to="/"
+                      to="/signup"
                       color="primary"
                       style={{
                         color: "rgba(102, 108, 255, 1)",

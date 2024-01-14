@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useState, useEffect} from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Grid,
@@ -8,42 +8,98 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-
+import axios from "axios";
 const priorities = ["High", "Medium", "Low"];
 const statuses = ["Pending", "In Progress", "Completed"];
 const Assignees = ["Saeed", "Ahmed", "Javeeda"];
+const UserToken = localStorage.getItem("userToken");
+const userToken = JSON.parse(UserToken)
+const userID = localStorage.getItem("userData");
+  const userId= JSON.parse(userID)
+console.log(userId)
+console.log(userToken)
 const TaskForm = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [assignees, setAssignees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchAssignees = async () => {
+      try {
+        const response = await axios.post("https://rose-jittery-mussel.cyclic.app/api/getalluser",{
+          userId:userId,
+        });
+        setAssignees(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching assignees:", error);
+        setLoading(false);
+      }
+    };
 
-  const onSubmit = (data) => {
-    // Handle form submission logic here
+    fetchAssignees();
+  }, [userId]);
+ 
+ const onSubmit = async (data) => {
+  const selectedAssignee = assignees.find(
+    (assignee) => assignee.id === data.assignee
+  );
+console.log(selectedAssignee)
+  try {
     console.log(data);
-  };
 
+    const response = await axios.post(
+      'https://rose-jittery-mussel.cyclic.app/api/create-task',
+      
+      {
+        title: data.title,
+        description: data.description,
+        userId: userId,
+        assigneeId: selectedAssignee.id,
+        dueDate: data.dueDate,
+        priority: data.priority,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+      
+    );
+      if(response.status === 200){
+        alert("Task created successfully")
+      }
+    console.log(response.data);
+  } catch (error) {
+    console.error(error);
+    alert("Task Creation Failed")
+  }
+
+
+  }
   return (
     <div
       className="super_container"
       style={{
-        maxWidth: "1620px",
-        marginLeft: "18rem",
+        maxWidth: "1220px",
+        marginLeft: "22rem",
         marginTop: "6rem",
         height: "90vh",
         background: "rgba(245, 245, 247, 1)",
         border: "2px solid rgba(245, 245, 247, 1)",
       }}
     >
-      <div className="task_form">
+      <div className="task_form" >
         <Grid
           container
           justifyContent="center"
           alignItems="center"
           style={{ height: "100%" }}
         >
-          <Grid item xs={10} sm={8} md={6} lg={4}>
+          <Grid item xs={10} sm={8} md={1} lg={3}>
             <Paper
               elevation={3}
               style={{
@@ -176,14 +232,18 @@ const TaskForm = () => {
                           error={!!errors.assignee}
                           helperText={errors.assignee?.message}
                         >
-                          {Assignees.map((assignee) => (
-                            <MenuItem
-                              key={assignee}
-                              value={assignee.toLowerCase()}
-                            >
-                              {assignee}
-                            </MenuItem>
-                          ))}
+                          {loading ? (
+                            <MenuItem disabled>Loading...</MenuItem>
+                          ) : (
+                            assignees.map((assignee) => (
+                              <MenuItem
+                                key={assignee.id}
+                                value={assignee.id}
+                              >
+                                {assignee.username}
+                              </MenuItem>
+                            ))
+                          )}
                         </TextField>
                       )}
                     />
@@ -214,7 +274,7 @@ const TaskForm = () => {
                   <Grid
                     item
                     xs={12}
-                    style={{ paddingTop: "20px"}}
+                    style={{ paddingTop: "20px", marginLeft:'1rem'}}
                   >
                     <Button
                       type="submit"

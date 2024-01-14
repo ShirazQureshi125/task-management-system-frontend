@@ -10,6 +10,7 @@ import {
  
 } from "@mui/material";
 import logoImage from "../../assets/images/Logo.png";
+import axios, { AxiosError } from "axios";
 import { Link } from "react-router-dom";
 const roles = ["User", "Manager", "Admin"];
 
@@ -20,9 +21,32 @@ const SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    // Handle form submission logic here
+  const onSubmit = async(data) => {
     console.log(data);
+    const modifiedData = {
+      data,
+        username: data.fullName,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+    }
+   try{
+    const response = await axios.post("https://rose-jittery-mussel.cyclic.app/api/user-register", modifiedData);
+    if(response.status === 200){
+      alert("User registered successfully")
+    }
+    
+   }catch(err){
+    //alert("User registration failed")
+    console.log("Errors",err.response.data.error)
+    console.log(err)
+    if(err.response.status ===400){
+      alert("User already exist with this email")
+    }else{
+      alert("validation error! use different user name")
+    }
+   }
+   
   };
 
   return (
@@ -168,7 +192,16 @@ const SignUp = () => {
                     name="password"
                     control={control}
                     defaultValue=""
-                    rules={{ required: "Password is required" }}
+                    rules={{
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
+                      maxLength: {
+                        value: 12,
+                        message: "Password must be at most 12 characters",
+                      },}}
                     render={({ field }) => (
                       <TextField
                         label="Password"
@@ -216,7 +249,7 @@ const SignUp = () => {
                   >
                     Already have an account?{" "}
                     <Link
-                      to="/signin"
+                      to="/"
                       color="primary"
                       style={{
                         color: "rgba(102, 108, 255, 1)",

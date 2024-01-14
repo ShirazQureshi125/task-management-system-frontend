@@ -3,12 +3,12 @@ import { Button, Modal } from 'react-bootstrap';
 import { IoClose } from "react-icons/io5";
 const SimpleModal = ({ open, onClose, value }) => {
   return (
-    <Modal show={open} onHide={onClose} dialogClassName="custom-modal" centered>
+    <Modal show={open} onHide={onClose} dialogClassName="custom-modal" centered style={{marginTop:'2rem'}}>
       <div className="modal-content">
         <Modal.Header closeButton style={{ display: 'flex'}}>
           <Modal.Title style={{ fontSize: '24px' , flex:'1'}}>Task Details</Modal.Title>
           
-          
+            
           
         </Modal.Header>
         <Modal.Body className="task-modal">
@@ -20,16 +20,16 @@ const SimpleModal = ({ open, onClose, value }) => {
               <span>Due Date:<br></br></span> {value.dueDate}
             </p>
             <p style={{ marginLeft: '8rem' }}>
-              <span>Assignee:<br></br></span> {value.Assignee}
+              <span>Assignee:<br></br></span>  {value.assignee ? value.assignee.username : "N/A"}
             </p>
             <p style={{ marginLeft: '8rem' }}>
-              <span>Priority:<br></br></span> {value.Priority}
+              <span>Priority:<br></br></span> {value.priority}
             </p>
             <p style={{ marginLeft: '8rem' }}>
-              <span> Status: <br></br></span> {value.Status}
+              <span> Status: <br></br></span> {value.status}
             </p>
             <p style={{ marginLeft: '8rem' }}>
-              <span> Assigned By: <br></br></span> {value.Assignee}
+              <span> Assigned By: <br></br></span> {value.assignee.username }
             </p>
           </div>
           <div
@@ -51,7 +51,7 @@ const SimpleModal = ({ open, onClose, value }) => {
                   margin: '1rem',
                 }}
               >
-                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni
+               <span style={{fontWeight:'600', fontSize:'15px', color:'#3b71ca '}} >{value.description}</span>  Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni
                 praesentium rem iste, nam fuga vel nemo minus voluptate
                 repellendus vitae, quis voluptatibus nobis voluptatem tempore
                 itaque non! Corrupti, nulla optio. Lorem ipsum dolor sit amet

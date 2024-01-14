@@ -59,7 +59,7 @@ function createData(Name, dueDate, Assignee, Priority, Status, Action) {
   ),
 ]; */
 
-const TaskTable = () => {
+const UserTaskTable = () => {
   const [tasks, setTasks] = useState([]);
   const [openModal, setOpenModal] = React.useState(false);
   const [detailModal, setDetailModal] = React.useState(false);
@@ -78,43 +78,28 @@ const TaskTable = () => {
   };
   const userID = localStorage.getItem("userData");
   const userId = JSON.parse(userID);
-  const UserToken = localStorage.getItem("userToken");
   // console.log(UserToken);
-  //console.log("user id", userId);
-  const handleDeleteTask = async (taskId) => {
-    try {
-      // Send a request to your backend API to delete the task
-      await axios.delete(`https://rose-jittery-mussel.cyclic.app/api/delete-task`, {
-        data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
-      });
+  console.log("userid", userId);
 
-      // Update the tasks list after deletion
-      const updatedTasks = tasks.filter((task) => task.id !== taskId);
-      setTasks(updatedTasks);
-      alert("Task deleted successfully")
-      console.log("Task deleted successfully");
-    } catch (error) {
-      console.error("Error deleting task:", error);
-      alert("Task Delete Failed")
-    }
-  };
   useEffect(() => {
-    const fetchTasksForAdmin = async (req, res) => {
-     
+    const fetchTasksForUser = async (req, res) => {
       try {
         //const userId = req.userId;
-        const response = await axios.post(`https://rose-jittery-mussel.cyclic.app/api/alltask`, {
-          userId: userId,
-        });
+        const response = await axios.post(
+          "https://rose-jittery-mussel.cyclic.app/api/user-task",
+          {
+            userId: userId,
+          }
+        );
         setTasks(response.data);
 
-        console.log(response);
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
     };
 
-    fetchTasksForAdmin();
+    fetchTasksForUser();
   }, [userId]);
   console.log(tasks);
   return (
@@ -145,29 +130,6 @@ const TaskTable = () => {
           background: "rgba(245, 245, 247, 1)",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "20px",
-          }}
-        >
-          <Link
-            to="/create-task"
-            style={{
-              textDecoration: "none",
-              color: "#fff",
-              background: "rgba(84, 111, 255, 1)",
-              width: "210px",
-              height: "60px",
-              borderRadius: "10px",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Button color="inherit">Create Task</Button>
-          </Link>
-        </div>
         <TableContainer
           component={Paper}
           style={{
@@ -185,7 +147,6 @@ const TaskTable = () => {
                 <TableCell align="right">Assignee</TableCell>
                 <TableCell align="right">priority</TableCell>
                 <TableCell align="right">Status</TableCell>
-                <TableCell align="right">Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -233,12 +194,6 @@ const TaskTable = () => {
                   >
                     {task.status}
                   </TableCell>
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    <RiDeleteBin5Line color="red" size={30} onClick={() => handleDeleteTask(task.id)}  />
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -249,4 +204,4 @@ const TaskTable = () => {
   );
 };
 
-export default TaskTable;
+export default UserTaskTable;

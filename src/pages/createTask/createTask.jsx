@@ -5,11 +5,11 @@ import TaskForm from '../../components/TaskForm';
 
 const CreateTask = () => {
   return (
-    <>
+    <div style={{background:'rgba(245, 245, 247, 1)'}}>
       <Sidebar />
       <Navbar />
      <TaskForm/>
-    </>
+    </div>
   );
 };
 
