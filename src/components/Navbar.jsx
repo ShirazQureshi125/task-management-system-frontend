@@ -4,29 +4,38 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 const UserToken = localStorage.getItem("userToken");
 const userToken = JSON.parse(UserToken);
+const userRole = localStorage.getItem("userRole");
+const userId = localStorage.getItem("userData");
+console.log(userId, userRole, userToken);
 const Navbar = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       // Make a request to the backend logout endpoint
-      const response = await fetch("https://rose-jittery-mussel.cyclic.app/api/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
+      const response = await fetch(
+        "https://rose-jittery-mussel.cyclic.app/api/logout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
 
       // Check if the request was successful
       if (response.ok) {
-        alert("Logged out successfully")
+        alert("Logged out successfully");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userRole");
         // Redirect to the login page or perform any other desired action
-       // history.push("/"); // Make sure to replace '/login' with your actual login route
-       navigate("/")
+        // history.push("/"); // Make sure to replace '/login' with your actual login route
+        navigate("/");
       } else {
         // Handle error responses from the server
         const data = await response.json();
-        alert("Logout Failed")
+        alert("Logout Failed");
         console.error("Logout Error:", data.message);
       }
     } catch (error) {

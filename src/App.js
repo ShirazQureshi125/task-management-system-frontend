@@ -12,8 +12,8 @@ import NotFound from "./pages/404Page/notFound";
 function App() {
   const UserRole = localStorage.getItem("userRole");
   const userRole = JSON.parse(UserRole);
-  
-
+  console.log({userRole});
+  //console.log("userRole".length)
   const userRoutes = [
     {
       routeName: "/user-task",
@@ -57,30 +57,27 @@ function App() {
       <Routes>
         {/* Public routes accessible to everyone */}
         <Route path="/signup" element={<SignUp />} />
-        <Route
-          path="/"
-          element={
-            <SignIn />
-          }
-        />
+        <Route path="/" element={<SignIn />} />
 
-        {userRole === "user" && userRoutes.map((route) => (
-          <Route
-            key={route.routeName}
-            path={route.routeName}
-            element={route.element}
-          />
-        ))}
+        {userRole === "user" &&
+          userRoutes.map((route) => (
+            <Route
+              key={route.routeName}
+              path={route.routeName}
+              element={route.element}
+            />
+          ))}
 
-        {userRole === "admin" && adminRoutes.map((route) => (
-          <Route
-            key={route.routeName}
-            path={route.routeName}
-            element={route.element}
-          />
-        ))}
+        {userRole === "admin" &&
+          adminRoutes.map((route) => (
+            <Route
+              key={route.routeName}
+              path={route.routeName}
+              element={route.element}
+            />
+          ))}
 
-        <Route path="*" element={<NotFound />} />
+        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </BrowserRouter>
   );

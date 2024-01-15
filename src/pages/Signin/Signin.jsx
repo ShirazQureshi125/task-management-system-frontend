@@ -27,6 +27,7 @@ const SignIn = () => {
       );
       if (response.status === 200) {
         alert("User login successfully");
+        
         const { email, token } = response.data;
         const userData = {
           email,
