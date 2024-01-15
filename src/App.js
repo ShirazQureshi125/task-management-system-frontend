@@ -1,4 +1,3 @@
-import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from "./pages/Signin/Signin";
 import SignUp from "./pages/Signup/Signup";
@@ -12,8 +11,9 @@ import NotFound from "./pages/404Page/notFound";
 
 function App() {
   const UserRole = localStorage.getItem("userRole");
-  console.log({UserRole});
-  const userRole = JSON.parse(UserRole)
+  const userRole = JSON.parse(UserRole);
+  
+
   const userRoutes = [
     {
       routeName: "/user-task",
@@ -37,7 +37,7 @@ function App() {
     },
   ];
 
-  const adminRoute = [
+  const adminRoutes = [
     {
       routeName: "/create-task",
       element: <CreateTask />,
@@ -51,57 +51,36 @@ function App() {
       element: <NotFound />,
     },
   ];
-  console.log(userRole === "admin")
+
   return (
-    /*  <BrowserRouter>
-      <Routes>
-        {adminRoute.map((route) => {
-          return <Route path={route.routeName} element={route.element} />;
-        })}
-      </Routes>
-    </BrowserRouter> */
     <BrowserRouter>
       <Routes>
         {/* Public routes accessible to everyone */}
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/" element={<SignIn />} />
-
-        {
-        (userRole == "user" || userRole === "manager") &&
-          userRoutes.map((route) => {
-            console.log("userRoutes", userRole)   
-            return (
-              <Route
-                key={route.routeName}
-                path={route.routeName}
-                element={route.element}
-              />
-            );
-          })
-          }
-
-        {userRole == "admin" &&
-          adminRoute.map((route) => {
-            console.log("admin Routes", userRole) 
-            return (
-              <Route
-                key={route.routeName}
-                path={route.routeName}
-                element={route.element}
-              />
-            );
-          }
-          )}
-
-        {/* Redirect to the appropriate default route based on the role */}
         <Route
           path="/"
           element={
-            <Navigate to={userRole === "admin" ? "/task-page" : "/user-task"} />
+            <SignIn />
           }
         />
-        {/* <Route path="/*" element={<Navigate to="/404" />} /> */}
 
+        {userRole === "user" && userRoutes.map((route) => (
+          <Route
+            key={route.routeName}
+            path={route.routeName}
+            element={route.element}
+          />
+        ))}
+
+        {userRole === "admin" && adminRoutes.map((route) => (
+          <Route
+            key={route.routeName}
+            path={route.routeName}
+            element={route.element}
+          />
+        ))}
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

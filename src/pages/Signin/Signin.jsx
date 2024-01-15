@@ -42,11 +42,18 @@ const SignIn = () => {
         localStorage.setItem("userData", JSON.stringify(response.data.user.id));
 
         const userRole = localStorage.getItem("userRole");
+          const role = JSON.parse(userRole);
+        console.log(" ====================================== ")
+        console.log(userRole)
 
-        if (userRole === "admin") {
+        console.log(userRole.toString().toLowerCase() == "admin")
+console.log(role.length)
+console.log("user".length)
+
+        if (role === "admin") {
           // Navigate to admin route
           navigate("/task-page");
-        } else   {
+        } else  if (role === "user"){
           // Navigate to user route
           navigate("/user-task");
         }
