@@ -1,4 +1,4 @@
-import React , {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Grid,
@@ -9,16 +9,38 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+
+  import 'react-toastify/dist/ReactToastify.css';import { useNavigate } from "react-router-dom";
 const priorities = ["High", "Medium", "Low"];
 const statuses = ["Pending", "In Progress", "Completed"];
 const Assignees = ["Saeed", "Ahmed", "Javeeda"];
 const UserToken = localStorage.getItem("userToken");
-const userToken = JSON.parse(UserToken)
+const userToken = JSON.parse(UserToken);
 const userID = localStorage.getItem("userData");
-  const userId= JSON.parse(userID)
-console.log(userId)
-console.log(userToken)
+const userId = JSON.parse(userID);
+console.log(userId);
+console.log(userToken);
 const TaskForm = () => {
+  const notify = () =>
+    toast.success("Task Created Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyError = () =>
+    toast.error("Task Creation Failed!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyWarn = () =>
+    toast.warn("Something Went Wrong!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+
   const {
     control,
     handleSubmit,
@@ -29,9 +51,12 @@ const TaskForm = () => {
   useEffect(() => {
     const fetchAssignees = async () => {
       try {
-        const response = await axios.post("https://rose-jittery-mussel.cyclic.app/api/getalluser",{
-          userId:userId,
-        });
+        const response = await axios.post(
+          "https://super-fish-pajamas.cyclic.app/api/getalluser",
+          {
+            userId: userId,
+          }
+        );
         setAssignees(response.data);
         setLoading(false);
       } catch (error) {
@@ -42,44 +67,41 @@ const TaskForm = () => {
 
     fetchAssignees();
   }, [userId]);
- 
- const onSubmit = async (data) => {
-  const selectedAssignee = assignees.find(
-    (assignee) => assignee.id === data.assignee
-  );
-console.log(selectedAssignee)
-  try {
-    console.log(data);
 
-    const response = await axios.post(
-      'https://rose-jittery-mussel.cyclic.app/api/create-task',
-      
-      {
-        title: data.title,
-        description: data.description,
-        userId: userId,
-        assigneeId: selectedAssignee.id,
-        dueDate: data.dueDate,
-        priority: data.priority,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      }
-      
+  const onSubmit = async (data) => {
+    const selectedAssignee = assignees.find(
+      (assignee) => assignee.id === data.assignee
     );
-      if(response.status === 200){
-        alert("Task created successfully")
+    console.log(selectedAssignee);
+    try {
+      console.log(data);
+
+      const response = await axios.post(
+        "https://super-fish-pajamas.cyclic.app/api/create-task",
+
+        {
+          title: data.title,
+          description: data.description,
+          userId: userId,
+          assigneeId: selectedAssignee.id,
+          dueDate: data.dueDate,
+          priority: data.priority,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        notify();
       }
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-    alert("Task Creation Failed")
-  }
-
-
-  }
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+      notifyError();
+    }
+  };
   return (
     <div
       className="super_container"
@@ -92,7 +114,7 @@ console.log(selectedAssignee)
         border: "2px solid rgba(245, 245, 247, 1)",
       }}
     >
-      <div className="task_form" >
+      <div className="task_form">
         <Grid
           container
           justifyContent="center"
@@ -236,10 +258,7 @@ console.log(selectedAssignee)
                             <MenuItem disabled>Loading...</MenuItem>
                           ) : (
                             assignees.map((assignee) => (
-                              <MenuItem
-                                key={assignee.id}
-                                value={assignee.id}
-                              >
+                              <MenuItem key={assignee.id} value={assignee.id}>
                                 {assignee.username}
                               </MenuItem>
                             ))
@@ -270,25 +289,25 @@ console.log(selectedAssignee)
                     />
                   </Grid>
                   <div className="div">
-
-                  <Grid
-                    item
-                    xs={12}
-                    style={{ paddingTop: "20px", marginLeft:'1rem'}}
-                  >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      style={{
-                        background: "rgba(102, 108, 255, 1)",
-                        borderRadius: "10px",
-                        padding: "14px",
-                        width: "216px",
-                      }}
+                    <Grid
+                      item
+                      xs={12}
+                      style={{ paddingTop: "20px", marginLeft: "1rem" }}
                     >
-                      Create Task
-                    </Button>
-                  </Grid>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        style={{
+                          background: "rgba(102, 108, 255, 1)",
+                          borderRadius: "10px",
+                          padding: "14px",
+                          width: "216px",
+                        }}
+                      >
+                        Create Task
+                      </Button>
+                      <ToastContainer />
+                    </Grid>
                   </div>
                 </Grid>
               </form>

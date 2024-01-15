@@ -1,26 +1,25 @@
-.signUp_page{
-  background: url('./assets/images/Body.png');
+.signUp_page {
+  background: url("./assets/images/Body.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  
-  
 }
-.modal-content{
-  
+.modal-content {
   width: 994px;
   height: 578px;
   margin-left: -4rem;
   border-radius: 10px;
   border: none;
 }
-.modal-content span{
+.modal-content span {
   color: rgba(101, 111, 125, 1);
   font-size: 12px;
   font-weight: 400;
   line-height: 150%;
-  
 }
-.modal-content p{
+.modal-content p {
   font-weight: 500;
   font-size: 14px;
+}
+.super_container .delete-icon:hover {
+  background-color: rgb(234, 216, 216);
 }

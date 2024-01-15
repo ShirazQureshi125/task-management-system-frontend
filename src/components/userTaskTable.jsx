@@ -86,7 +86,7 @@ const UserTaskTable = () => {
       try {
         //const userId = req.userId;
         const response = await axios.post(
-          "https://rose-jittery-mussel.cyclic.app/api/user-task",
+          "https://super-fish-pajamas.cyclic.app/api/user-task",
           {
             userId: userId,
           }

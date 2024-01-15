@@ -10,8 +10,28 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/images/Logo.png";
+import {  ToastContainer, toast } from "react-toastify";
+
 import axios from "axios";
 const SignIn = () => {
+  const notify = () =>
+    toast.success("Successfully login!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyError = () =>
+    toast.error("Login Failed!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyWarn = () =>
+    toast.warn("Something Went Wrong!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
   const navigate = useNavigate();
   const {
     control,
@@ -22,12 +42,12 @@ const SignIn = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://rose-jittery-mussel.cyclic.app/api/login-user",
+        "https://super-fish-pajamas.cyclic.app/api/login-user",
         data
       );
       if (response.status === 200) {
-        alert("User login successfully");
-        
+        notify();
+
         const { email, token } = response.data;
         const userData = {
           email,
@@ -43,18 +63,18 @@ const SignIn = () => {
         localStorage.setItem("userData", JSON.stringify(response.data.user.id));
 
         const userRole = localStorage.getItem("userRole");
-          const role = JSON.parse(userRole);
-        console.log(" ====================================== ")
-        console.log(userRole)
+        const role = JSON.parse(userRole);
+        console.log(" ====================================== ");
+        console.log(userRole);
 
-        console.log(userRole.toString().toLowerCase() == "admin")
-console.log(role.length)
-console.log("user".length)
+        console.log(userRole.toString().toLowerCase() == "admin");
+        console.log(role.length);
+        console.log("user".length);
 
         if (role === "admin") {
           // Navigate to admin route
           navigate("/task-page");
-        } else  if (role === "user"){
+        } else if (role === "user") {
           // Navigate to user route
           navigate("/user-task");
         }
@@ -65,6 +85,7 @@ console.log("user".length)
     } catch (err) {
       console.log("Errors", err.response.data.error);
       console.log(err);
+      notifyError();
       if (err.response.status === 401) {
         alert("Invalid Passord");
       } else if (err.response.status === 404) {
@@ -77,12 +98,14 @@ console.log("user".length)
 
   return (
     <div className="signUp_page">
+    
       <Grid
         container
         justifyContent="center"
         alignItems="center"
         style={{ height: "100vh" }}
       >
+         <ToastContainer />
         <Grid item xs={10} sm={8} md={6} lg={4}>
           <Paper
             elevation={3}

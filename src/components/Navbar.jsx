@@ -1,6 +1,9 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 const UserToken = localStorage.getItem("userToken");
 const userToken = JSON.parse(UserToken);
@@ -8,12 +11,30 @@ const userRole = localStorage.getItem("userRole");
 const userId = localStorage.getItem("userData");
 console.log(userId, userRole, userToken);
 const Navbar = () => {
+  const notify = () =>
+    toast.success("User Logout Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyError = () =>
+    toast.error("Logout Failed!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyWarn = () =>
+    toast.warn("Something Went Wrong!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       // Make a request to the backend logout endpoint
       const response = await fetch(
-        "https://rose-jittery-mussel.cyclic.app/api/logout",
+        "https://super-fish-pajamas.cyclic.app/api/logout",
         {
           method: "POST",
           headers: {
@@ -25,7 +46,8 @@ const Navbar = () => {
 
       // Check if the request was successful
       if (response.ok) {
-        alert("Logged out successfully");
+        notify();
+       
         localStorage.removeItem("userData");
         localStorage.removeItem("userToken");
         localStorage.removeItem("userRole");
@@ -35,12 +57,13 @@ const Navbar = () => {
       } else {
         // Handle error responses from the server
         const data = await response.json();
-        alert("Logout Failed");
+        notifyError();
         console.error("Logout Error:", data.message);
       }
     } catch (error) {
       // Handle network or unexpected errors
       console.error("Logout Error:", error.message);
+      notifyWarn();
     }
   };
   return (
@@ -88,6 +111,7 @@ const Navbar = () => {
             Logout
           </Button>
         </Link>
+        <ToastContainer />
       </Toolbar>
     </AppBar>
   );

@@ -7,8 +7,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, Select, MenuItem } from "@mui/material";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import { ToastContainer, toast } from "react-toastify";
+
+import "../../src/App.css";
 import Dialog from "./Dialog";
 import SimpleModal from "./Modal";
 import axios from "axios";
@@ -64,7 +67,26 @@ const TaskTable = () => {
   const [openModal, setOpenModal] = React.useState(false);
   const [detailModal, setDetailModal] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState(null);
-
+  const [priorityFilter, setPriorityFilter] = useState(null);
+  const [initialTasks, setInitialTasks] = useState([]);
+  const [statusFilter, setStatusFilter] = useState(null);
+  const filterTasksByPriority = (priority) => {
+    if (priority === null) {
+      setTasks(initialTasks);
+    } else {
+      // Filter tasks based on the selected priority
+      const filteredTasks = initialTasks.filter(
+        (task) => task.priority === priority
+      );
+      setTasks(filteredTasks);
+    }
+  };
+  const notify = () =>
+    toast.success("Task Delete Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
   const handleTaskClick = (task) => {
     setDetailModal(true);
     setSelectedTask(task);
@@ -84,29 +106,66 @@ const TaskTable = () => {
   const handleDeleteTask = async (taskId) => {
     try {
       // Send a request to your backend API to delete the task
-      await axios.delete(`https://rose-jittery-mussel.cyclic.app/api/delete-task`, {
-        data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
-      });
+      await axios.delete(
+        `https://super-fish-pajamas.cyclic.app/api/delete-task`,
+        {
+          data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
+        }
+      );
 
       // Update the tasks list after deletion
       const updatedTasks = tasks.filter((task) => task.id !== taskId);
       setTasks(updatedTasks);
-      alert("Task deleted successfully")
+      notify();
       console.log("Task deleted successfully");
     } catch (error) {
       console.error("Error deleting task:", error);
-      alert("Task Delete Failed")
+      alert("Task Delete Failed");
     }
   };
+  const handleStatusChange = async (taskId, newStatus) => {
+    try {
+      // Send a request to your backend API to update the task status
+      await axios.put(
+        `https://super-fish-pajamas.cyclic.app/api/update-task-status`,
+        {
+          id: taskId,
+          status: newStatus,
+        }
+      );
+
+      // Update the tasks list after status change
+      const updatedTasks = tasks.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      );
+      setTasks(updatedTasks);
+      console.log("Task status updated successfully");
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      alert("Task Status Update Failed");
+    }
+  };
+
   useEffect(() => {
-    const fetchTasksForAdmin = async (req, res) => {
-     
+    const fetchTasksForAdmin = async () => {
       try {
-        //const userId = req.userId;
-        const response = await axios.post(`https://rose-jittery-mussel.cyclic.app/api/alltask`, {
-          userId: userId,
+        const response = await axios.post(
+          `https://super-fish-pajamas.cyclic.app/api/alltask`,
+          {
+            userId: userId,
+          }
+        );
+
+        // Set the initial tasks and status filter
+        const initialTasksWithDefaultStatus = response.data.map((task) => {
+          return {
+            ...task,
+            statusFilter: task.status,
+          };
         });
-        setTasks(response.data);
+
+        setInitialTasks(initialTasksWithDefaultStatus);
+        setTasks(initialTasksWithDefaultStatus);
 
         console.log(response);
       } catch (error) {
@@ -118,7 +177,7 @@ const TaskTable = () => {
   }, [userId]);
 
   console.log(tasks);
-  
+
   return (
     <div
       className="super_container"
@@ -154,6 +213,24 @@ const TaskTable = () => {
             marginBottom: "20px",
           }}
         >
+          <Select
+            value={priorityFilter}
+            onChange={(e) => {
+              setPriorityFilter(e.target.value);
+              filterTasksByPriority(e.target.value);
+            }}
+            style={{
+              marginRight: "10px",
+              background: "rgba(84, 111, 255, 1)",
+              width: "100px",
+              borderRadius: "10px",
+            }}
+          >
+            <MenuItem value={null}>All Priorities</MenuItem>
+            <MenuItem value="high">High</MenuItem>
+            <MenuItem value="normal">Normal</MenuItem>
+            <MenuItem value="low">Low</MenuItem>
+          </Select>
           <Link
             to="/create-task"
             style={{
@@ -170,6 +247,7 @@ const TaskTable = () => {
             <Button color="inherit">Create Task</Button>
           </Link>
         </div>
+
         <TableContainer
           component={Paper}
           style={{
@@ -233,13 +311,31 @@ const TaskTable = () => {
                     align="right"
                     style={{ fontWeight: "600", fontSize: "1rem" }}
                   >
-                    {task.status}
+                    <Select
+                      value={task.statusFilter}
+                      onChange={(e) =>
+                        handleStatusChange(task.id, e.target.value)
+                      }
+                      style={{
+                        width: "120px",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="progress">In Progress</MenuItem>
+                      <MenuItem value="completed">Completed</MenuItem>
+                    </Select>
                   </TableCell>
                   <TableCell
                     align="right"
                     style={{ fontWeight: "600", fontSize: "1rem" }}
                   >
-                    <RiDeleteBin5Line color="red" size={30} onClick={() => handleDeleteTask(task.id)}  />
+                    <RiDeleteBin5Line
+                      color="red"
+                      size={30}
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="delete-icon"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
