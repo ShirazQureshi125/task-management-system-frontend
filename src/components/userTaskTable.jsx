@@ -102,6 +102,7 @@ const UserTaskTable = () => {
     fetchTasksForUser();
   }, [userId]);
   console.log(tasks);
+
   return (
     <div
       className="super_container"

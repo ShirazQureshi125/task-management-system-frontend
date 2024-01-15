@@ -60,6 +60,7 @@ console.log("user".length)
         }
         const UserRole = localStorage.getItem("userRole");
         console.log(UserRole);
+        window.location.reload();
       }
     } catch (err) {
       console.log("Errors", err.response.data.error);
