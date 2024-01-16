@@ -12,7 +12,7 @@ import logoImage from "../../assets/images/Logo.png";
 import axios, { AxiosError } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { RevolvingDot } from "react-loader-spinner";
+import { TailSpin } from "react-loader-spinner";
 import "react-toastify/dist/ReactToastify.css";
 const roles = ["User", "Manager", "Admin"];
 
@@ -270,12 +270,15 @@ const SignUp = () => {
                     }}
                   >
                     {loading ? (
-                      <RevolvingDot
-                        visible={true}
-                        color="white"
-                        ariaLabel="revolving-dot-loading"
-                        wrapperStyle={{}}
-                        wrapperClass="revolingDotIcon"
+                      <TailSpin
+                      visible={true}
+                      height="40"
+                      width="40"
+                      color="white"
+                      ariaLabel="tail-spin-loading"
+                      radius="1"
+                      wrapperStyle={{}}
+                      wrapperClass=""
                       />
                     ) : (
                       "Sign up"
