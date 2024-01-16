@@ -58,7 +58,7 @@ const TaskForm = () => {
     const fetchAssignees = async () => {
       try {
         const response = await axios.post(
-          "https://super-fish-pajamas.cyclic.app/api/getalluser",
+          "https://itchy-puce-perch.cyclic.app/api/getalluser",
           {
             userId: userId,
           }
@@ -83,7 +83,7 @@ const TaskForm = () => {
       console.log(data);
       setTaskLoading(true);
       const response = await axios.post(
-        "https://super-fish-pajamas.cyclic.app/api/create-task",
+        "https://itchy-puce-perch.cyclic.app/api/create-task",
 
         {
           title: data.title,

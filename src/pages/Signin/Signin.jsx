@@ -33,7 +33,7 @@ const SignIn = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://super-fish-pajamas.cyclic.app/api/login-user",
+        "https://itchy-puce-perch.cyclic.app/api/login-user",
         data
       );
       if (response.status === 200) {

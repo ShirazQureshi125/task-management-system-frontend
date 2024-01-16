@@ -131,7 +131,7 @@ const TaskTable = () => {
     try {
       // Send a request to your backend API to delete the task
       await axios.delete(
-        `https://super-fish-pajamas.cyclic.app/api/delete-task`,
+        `https://itchy-puce-perch.cyclic.app/api/delete-task`,
         {
           data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
         }
@@ -156,7 +156,7 @@ const TaskTable = () => {
     try {
       // Send a request to your backend API to update the task status
       await axios.put(
-        `http://localhost:3001/api/update-task-status`,
+        `https://itchy-puce-perch.cyclic.app/api/update-task-status`,
         {
           id: taskId,
           status: newStatus,
@@ -178,7 +178,7 @@ const TaskTable = () => {
     const fetchTasksForAdmin = async () => {
       try {
         const response = await axios.post(
-          `https://super-fish-pajamas.cyclic.app/api/alltask`,
+          `https://itchy-puce-perch.cyclic.app/api/alltask`,
           {
             userId: userId,
           }

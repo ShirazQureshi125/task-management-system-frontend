@@ -42,7 +42,7 @@ const notifyError = () =>
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       // Send a request to your backend API to update the task status
-      await axios.put(`http://localhost:3001/api/update-task-status`, {
+      await axios.put(`https://itchy-puce-perch.cyclic.app/api/update-task-status`, {
         id: taskId,
         status: newStatus,
       });
