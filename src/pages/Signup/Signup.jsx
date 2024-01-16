@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Grid,
@@ -12,12 +12,12 @@ import logoImage from "../../assets/images/Logo.png";
 import axios, { AxiosError } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-
+import { RevolvingDot } from "react-loader-spinner";
 import "react-toastify/dist/ReactToastify.css";
 const roles = ["User", "Manager", "Admin"];
 
 const SignUp = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const notify = () =>
     toast.success("User Registeration Successfully!", {
       position: "top-center",
@@ -40,9 +40,10 @@ const SignUp = () => {
   const {
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm();
-
+  const [loading, setLoading] = useState(false);
   const onSubmit = async (data) => {
     console.log(data);
     const modifiedData = {
@@ -53,13 +54,14 @@ const SignUp = () => {
       role: data.role,
     };
     try {
+      setLoading(true);
       const response = await axios.post(
         "https://super-fish-pajamas.cyclic.app/api/user-register",
         modifiedData
       );
       if (response.status === 200) {
         notify();
-        navigate('/')
+        navigate("/");
       }
     } catch (err) {
       //alert("User registration failed")
@@ -67,10 +69,18 @@ const SignUp = () => {
       console.log(err);
       notifyError();
       if (err.response.status === 400) {
-        alert("User already exist with this email");
+        setError("email", {
+          type: "manual",
+          message: "User already exist with this Email",
+        });
       } else {
-        alert("validation error! use different user name");
+        setError("fullName", {
+          type: "manual",
+          message: "Use Different User Name",
+        });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -259,7 +269,17 @@ const SignUp = () => {
                       padding: "14px",
                     }}
                   >
-                    Sign up
+                    {loading ? (
+                      <RevolvingDot
+                        visible={true}
+                        color="white"
+                        ariaLabel="revolving-dot-loading"
+                        wrapperStyle={{}}
+                        wrapperClass="revolingDotIcon"
+                      />
+                    ) : (
+                      "Sign up"
+                    )}
                   </Button>
                   <ToastContainer />
                 </Grid>

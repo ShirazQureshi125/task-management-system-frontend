@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Grid,
@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/images/Logo.png";
-import {  ToastContainer, toast } from "react-toastify";
-
+import { ToastContainer, toast } from "react-toastify";
+import { TailSpin } from "react-loader-spinner";
 import axios from "axios";
 const SignIn = () => {
   const notify = () =>
@@ -20,27 +20,18 @@ const SignIn = () => {
       autoClose: 4000,
       theme: "dark",
     });
-  const notifyError = () =>
-    toast.error("Login Failed!", {
-      position: "top-center",
-      autoClose: 4000,
-      theme: "dark",
-    });
-  const notifyWarn = () =>
-    toast.warn("Something Went Wrong!", {
-      position: "top-center",
-      autoClose: 4000,
-      theme: "dark",
-    });
+
   const navigate = useNavigate();
   const {
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm();
-
+  const [loading, setLoading] = useState(false);
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const response = await axios.post(
         "https://super-fish-pajamas.cyclic.app/api/login-user",
         data
@@ -64,12 +55,12 @@ const SignIn = () => {
 
         const userRole = localStorage.getItem("userRole");
         const role = JSON.parse(userRole);
-        console.log(" ====================================== ");
+        /*   console.log(" ====================================== ");
         console.log(userRole);
 
         console.log(userRole.toString().toLowerCase() == "admin");
         console.log(role.length);
-        console.log("user".length);
+        console.log("user".length); */
 
         if (role === "admin") {
           // Navigate to admin route
@@ -84,28 +75,37 @@ const SignIn = () => {
       }
     } catch (err) {
       console.log("Errors", err.response.data.error);
-      console.log(err);
-      notifyError();
+
       if (err.response.status === 401) {
-        alert("Invalid Passord");
+        setError("password", {
+          type: "manual",
+          message: "Invalid Password",
+        });
       } else if (err.response.status === 404) {
-        alert("User not found");
+        setError("email", {
+          type: "manual",
+          message: "User not found",
+        });
       } else {
-        alert("Something Went Wrong");
+        setError("email", {
+          type: "manual",
+          message: "Something Went Wrong",
+        });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="signUp_page">
-    
       <Grid
         container
         justifyContent="center"
         alignItems="center"
         style={{ height: "100vh" }}
       >
-         <ToastContainer />
+        <ToastContainer />
         <Grid item xs={10} sm={8} md={6} lg={4}>
           <Paper
             elevation={3}
@@ -226,7 +226,20 @@ const SignIn = () => {
                       padding: "14px",
                     }}
                   >
-                    Sign in
+                    {loading ? (
+                     <TailSpin
+                      visible={true}
+                      height="40"
+                      width="40"
+                      color="white"
+                      ariaLabel="tail-spin-loading"
+                      radius="1"
+                      wrapperStyle={{}}
+                      wrapperClass=""
+                      />
+                    ) : (
+                      " Sign in"
+                    )}
                   </Button>
                 </Grid>
                 <Grid item xs={12} style={{ paddingBottom: "20px" }}>

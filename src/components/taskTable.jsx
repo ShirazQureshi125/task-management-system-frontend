@@ -10,8 +10,12 @@ import { Link } from "react-router-dom";
 import { Button, Select, MenuItem } from "@mui/material";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
-
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import "../../src/App.css";
+import { RevolvingDot } from "react-loader-spinner";
+import { FaFlag } from "react-icons/fa";
+
 import Dialog from "./Dialog";
 import SimpleModal from "./Modal";
 import axios from "axios";
@@ -70,6 +74,8 @@ const TaskTable = () => {
   const [priorityFilter, setPriorityFilter] = useState(null);
   const [initialTasks, setInitialTasks] = useState([]);
   const [statusFilter, setStatusFilter] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const filterTasksByPriority = (priority) => {
     if (priority === null) {
       setTasks(initialTasks);
@@ -83,6 +89,24 @@ const TaskTable = () => {
   };
   const notify = () =>
     toast.success("Task Delete Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const statusNotify = () =>
+    toast.success("Task Delete Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const notifyError = () =>
+    toast.error("Status Updated Successfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const statusErrorNotidy = () =>
+    toast.error("Status Update Failed!", {
       position: "top-center",
       autoClose: 4000,
       theme: "dark",
@@ -112,22 +136,27 @@ const TaskTable = () => {
           data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
         }
       );
-
+      setDeleteLoading(true);
       // Update the tasks list after deletion
       const updatedTasks = tasks.filter((task) => task.id !== taskId);
       setTasks(updatedTasks);
+
       notify();
       console.log("Task deleted successfully");
     } catch (error) {
       console.error("Error deleting task:", error);
-      alert("Task Delete Failed");
+      notifyError();
+    } finally {
+      setTimeout(() => {
+        setDeleteLoading(false);
+      }, 500);
     }
   };
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       // Send a request to your backend API to update the task status
       await axios.put(
-        `https://super-fish-pajamas.cyclic.app/api/update-task-status`,
+        `http://localhost:3001/api/update-task-status`,
         {
           id: taskId,
           status: newStatus,
@@ -139,10 +168,9 @@ const TaskTable = () => {
         task.id === taskId ? { ...task, status: newStatus } : task
       );
       setTasks(updatedTasks);
-      console.log("Task status updated successfully");
+      statusNotify()
     } catch (error) {
-      console.error("Error updating task status:", error);
-      alert("Task Status Update Failed");
+     statusErrorNotidy()
     }
   };
 
@@ -155,7 +183,6 @@ const TaskTable = () => {
             userId: userId,
           }
         );
-
         // Set the initial tasks and status filter
         const initialTasksWithDefaultStatus = response.data.map((task) => {
           return {
@@ -166,7 +193,7 @@ const TaskTable = () => {
 
         setInitialTasks(initialTasksWithDefaultStatus);
         setTasks(initialTasksWithDefaultStatus);
-
+        setLoading(false);
         console.log(response);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -253,7 +280,7 @@ const TaskTable = () => {
           style={{
             border: "1px solid rgba(0, 0, 0, 0.2)",
             maxHeight: "450px",
-            // width: "1150px",
+            //  maxWidth: "100%",
             overflowY: "auto",
           }}
         >
@@ -268,77 +295,154 @@ const TaskTable = () => {
                 <TableCell align="right">Action</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {tasks.map((task) => (
-                <TableRow
-                  key={task.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell
-                    component="th"
-                    scope="row"
-                    style={{
-                      fontWeight: "600",
-                      fontSize: "1rem",
-                      color: "rgba(84, 111, 255, 1)",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
-                    onClick={() => handleTaskClick(task)}
-                  >
-                    {task.title}
-                  </TableCell>
 
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    {task.dueDate}
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    {task.assignee ? task.assignee.username : "N/A"}
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    {task.priority}
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    <Select
-                      value={task.statusFilter}
-                      onChange={(e) =>
-                        handleStatusChange(task.id, e.target.value)
-                      }
-                      style={{
-                        width: "120px",
-                        borderRadius: "10px",
+            <TableBody>
+              {deleteLoading ? (
+                <>
+                  <TableCell style={{ display: "flex" }}></TableCell>
+
+                  <TableCell></TableCell>
+                  <TableCell>
+                    <RevolvingDot
+                      isLoading={true}
+                      color="#546fff"
+                      ariaLabel="revolving-dot-loading"
+                      wrapperStyle={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
                       }}
-                    >
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="progress">In Progress</MenuItem>
-                      <MenuItem value="completed">Completed</MenuItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    style={{ fontWeight: "600", fontSize: "1rem" }}
-                  >
-                    <RiDeleteBin5Line
-                      color="red"
-                      size={30}
-                      onClick={() => handleDeleteTask(task.id)}
-                      className="delete-icon"
+                      wrapperClass="revolingDotIcon"
                     />
                   </TableCell>
-                </TableRow>
-              ))}
+
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </>
+              ) : loading ? (
+                // Show skeleton while loading
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width={40} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                tasks.map((task) => (
+                  <TableRow
+                    key={task.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: "1rem",
+                        color: "rgba(84, 111, 255, 1)",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      {task.title}
+                    </TableCell>
+
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      {task.dueDate}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      {task.assignee ? task.assignee.username : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      {task.priority ? (
+                        <FaFlag
+                          color={
+                            task.priority === "high"
+                              ? "#F25353"
+                              : task.priority === "normal"
+                              ? "#75D653"
+                              : "#FFB72A"
+                          }
+                          size={20}
+                        />
+                      ) : (
+                        <FaFlag color="green" size={20} />
+                      )}
+                      {task.priority || "Medium"}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      <Select
+                        value={task.status}
+                        onChange={(e) =>
+                          handleStatusChange(task.id, e.target.value)
+                        }
+                        style={{
+                          width: "120px",
+                          border: "none",
+                          outline: "none",
+                          height: "40px",
+                          color: "white",
+                          fontWeight:'700',
+                          width: "150px",
+                          backgroundColor:
+                            task.status === "pending"
+                              ? "#FFB72B"
+                              : task.status === "progress"
+                              ? "#75D653"
+                              : task.status === "complete"
+                              ? "#F25353"
+                              : "transparent",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="progress">Active</MenuItem>
+                        <MenuItem value="complete">Closed</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      <RiDeleteBin5Line
+                        color="red"
+                        size={30}
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="delete-icon"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
