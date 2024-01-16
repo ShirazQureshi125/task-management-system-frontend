@@ -61,7 +61,7 @@ const notifyError = () =>
       try {
         //const userId = req.userId;
         const response = await axios.post(
-          "https://super-fish-pajamas.cyclic.app/api/user-task",
+          "https://itchy-puce-perch.cyclic.app/api/user-task",
           {
             userId: userId,
           }
