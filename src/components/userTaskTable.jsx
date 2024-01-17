@@ -15,10 +15,11 @@ import { ToastContainer, toast } from "react-toastify";
 
 import Dialog from "./Dialog";
 import SimpleModal from "./Modal";
-import { FaFlag } from "react-icons/fa";
+import { FaFlag, FaCircle } from "react-icons/fa";
 
 import axios from "axios";
 function createData(Name, dueDate, Assignee, Priority, Status, Action) {
+  
   return { Name, dueDate, Assignee, Priority, Status, Action };
 }
 
@@ -28,6 +29,32 @@ const UserTaskTable = () => {
   const [detailModal, setDetailModal] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState(null);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState(null);
+
+  const [priorityFilter, setPriorityFilter] = useState(null);
+  const [initialTasks, setInitialTasks] = useState([]);
+  const filterTasksByPriority = (priority) => {
+    if (priority === null) {
+      console.log(priority);
+      setTasks(initialTasks);
+    } else {
+      // Filter tasks based on the selected priority
+      const filteredTasks = initialTasks.filter(
+        (task) => task.priority === priority
+      );
+      setTasks(filteredTasks);
+    }
+  };
+  const filterTasksByStatus = (status) => {
+    if (status === null) {
+      // Reset filter, show all tasks
+      setTasks(initialTasks);
+    } else {
+      // Filter tasks based on the selected status
+      const filteredTasks = initialTasks.filter((task) => task.status === status);
+      setTasks(filteredTasks);
+    }
+  }
   const notify = () =>
   toast.success("Status Updated Successfully!", {
     position: "top-center",
@@ -40,6 +67,18 @@ const notifyError = () =>
     autoClose: 4000,
     theme: "dark",
   });
+  const priorityNotify = () =>
+  toast.success("Priority Changed Sucessfully!", {
+    position: "top-center",
+    autoClose: 4000,
+    theme: "dark",
+  });
+  const priorityErrorNotify = () =>
+    toast.error("Priority Update Failed!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
   const handleTaskClick = (task) => {
     setDetailModal(true);
     setSelectedTask(task);
@@ -55,7 +94,26 @@ const notifyError = () =>
   const userId = JSON.parse(userID);
   // console.log(UserToken);
   console.log("userid", userId);
+  const handlePriorityChange = async (taskId, newPriority) => {
+    try {
+      await axios.put(
+        `https://itchy-puce-perch.cyclic.app/api/update-task-priority`,
+        {
+          id: taskId,
+          priority: newPriority,
+        }
+      );
 
+      // Update the tasks list after priority change
+      const updatedTasks = tasks.map((task) =>
+        task.id === taskId ? { ...task, priority: newPriority } : task
+      );
+      setTasks(updatedTasks);
+      priorityNotify();
+    } catch (error) {
+      priorityErrorNotify();
+    }
+  };
   useEffect(() => {
     const fetchTasksForUser = async (req, res) => {
       try {
@@ -66,7 +124,12 @@ const notifyError = () =>
             userId: userId,
           }
         );
-        setTasks(response.data);
+        const formattedTasks = response.data.map((task) => ({
+          ...task,
+          dueDate: new Date(task.dueDate).toLocaleDateString("en-US"),
+        }));
+ 
+        setTasks(formattedTasks);
         setLoading(false);
         console.log(response.data);
       } catch (error) {
@@ -116,6 +179,7 @@ const notifyError = () =>
           open={detailModal}
           onClose={handleCloseModal2}
           value={selectedTask}
+          setTasks={setTasks} 
         />
       )}
       <div
@@ -127,6 +191,61 @@ const notifyError = () =>
           background: "rgba(245, 245, 247, 1)",
         }}
       >
+        <Select
+  value={priorityFilter || ''}
+  onChange={(e) => {
+    setPriorityFilter(e.target.value);
+    filterTasksByPriority(e.target.value);
+  }}
+  style={{ marginRight: "10px", background: "rgba(84, 111, 255, 1)", width: "200px", borderRadius: "10px", color:'white', border:'none', outline: 'none', marginBottom:'2rem' }} 
+  displayEmpty
+  inputProps={{ 'aria-label': 'Without label' }}
+>
+  <MenuItem value="" disabled>
+    Select Priority
+  </MenuItem>
+  <MenuItem value={null}>All Priorities</MenuItem>
+  <MenuItem value="high">
+    <FaFlag color="#F25353" size={18} style={{ marginRight: "8px" }} />
+    High
+  </MenuItem>
+  <MenuItem value="normal">
+    <FaFlag color="#75D653" size={18} style={{ marginRight: "8px" }} />
+    Normal
+  </MenuItem>
+  <MenuItem value="low">
+    <FaFlag color="#FFB72A" size={18} style={{ marginRight: "8px" }} />
+    Low
+  </MenuItem>
+</Select>
+
+<Select
+  value={statusFilter || ''}
+  onChange={(e) => {
+    setStatusFilter(e.target.value);
+    filterTasksByStatus(e.target.value);
+  }}
+  style={{ marginRight: "10px", background: "rgba(84, 111, 255, 1)", width: "200px", borderRadius: "10px", color:'white', border:'none', outline:'none' }}
+  displayEmpty
+  inputProps={{ 'aria-label': 'Without label' }}
+>
+  <MenuItem value="" disabled>
+    Select Status
+  </MenuItem>
+  <MenuItem value={null}>All Status</MenuItem>
+  <MenuItem value="pending">
+    <FaCircle color="#FFB72B" size={18} style={{ marginRight: "8px" }} />
+    Pending
+  </MenuItem>
+  <MenuItem value="progress">
+    <FaCircle color="#75D653" size={18} style={{ marginRight: "8px" }} />
+    Active
+  </MenuItem>
+  <MenuItem value="complete">
+    <FaCircle color="#F25353" size={18} style={{ marginRight: "8px" }} />
+    Closed
+  </MenuItem>
+</Select>
         <TableContainer
           component={Paper}
           style={{
@@ -201,58 +320,105 @@ const notifyError = () =>
                         {task.assignee ? task.assignee.username : "N/A"}
                       </TableCell>
                       <TableCell
-                        align="right"
-                        style={{ fontWeight: "600", fontSize: "1rem" }}
+                      align="right"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: "1rem",
+                        border: "1px solid transparent",
+                      }}
+                    >
+                      <Select
+                        value={task && task.priority}
+                        onChange={(e) => handlePriorityChange(task.id, e.target.value)}
+
+                        variant="outlined"
+                        style={{
+                          minWidth: "120px",
+                          height: "40px",
+                          border: "none",
+                          outline: "none",
+                        }}
                       >
-                        {task.priority ? (
+                        <MenuItem value="high">
                           <FaFlag
-                            color={
-                              task.priority === "high"
-                                ? "#F25353"
-                                : task.priority === "normal"
-                                ? "#75D653"
-                                : "#FFB72A"
-                            }
+                            color="#F25353"
                             size={20}
+                            style={{ marginRight: "8px" }}
                           />
-                        ) : (
-                          <FaFlag color="green" size={20} />
-                        )}
-                        {task.priority || "Medium"}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        style={{ fontWeight: "600", fontSize: "1rem" }}
+                          High
+                        </MenuItem>
+                        <MenuItem value="normal">
+                          <FaFlag
+                            color="#75D653"
+                            size={20}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Normal
+                        </MenuItem>
+                        <MenuItem value="low">
+                          <FaFlag
+                            color="#FFB72A"
+                            size={20}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Low
+                        </MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      style={{ fontWeight: "600", fontSize: "1rem" }}
+                    >
+                      <Select
+                        value={task && task.status}
+                        onChange={(e) =>
+                          handleStatusChange(task.id, e.target.value)
+                        }
+                        style={{
+                          width: "120px",
+                          border: "none",
+                          outline: "none",
+                          height: "40px",
+                          color: "white",
+                          fontWeight: "700",
+                          width: "150px",
+                          backgroundColor:
+                            task.status === "pending"
+                              ? "#FFB72B"
+                              : task.status === "progress"
+                              ? "#75D653"
+                              : task.status === "complete"
+                              ? "#F25353"
+                              : "transparent",
+                          borderRadius: "10px",
+                        }}
                       >
-                        <Select
-                          value={task.status}
-                          onChange={(e) =>
-                            handleStatusChange(task.id, e.target.value)
-                          }
-                          style={{
-                            width: "120px",
-                            border: "none",
-                            outline: "none",
-                            height: "40px",
-                            fontWeight: "700",
-                            width: "150px",
-                            backgroundColor:
-                              task.status === "pending"
-                                ? "#FFB72B"
-                                : task.status === "progress"
-                                ? "#75D653"
-                                : task.status === "complete"
-                                ? "#F25353"
-                                : "transparent",
-                            borderRadius: "10px",
-                            color: task.status === "complete" ? "#fff" : "#000", // Set text color
-                          }}
-                        >
-                          <MenuItem value="pending">Pending</MenuItem>
-                          <MenuItem value="progress">Active</MenuItem>
-                          <MenuItem value="complete">Closed</MenuItem>
-                        </Select>
-                      </TableCell>
+                        <MenuItem value="pending">
+                          <FaCircle
+                            color="#FFB72B"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Pending
+                        </MenuItem>
+                        <MenuItem value="progress">
+                          <FaCircle
+                            color="#75D653"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Active
+                        </MenuItem>
+                        <MenuItem value="complete">
+                          <FaCircle
+                            color="#F25353"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Closed
+                        </MenuItem>
+                      </Select>
+                    </TableCell>
                     </TableRow>
                   ))}
             </TableBody>

@@ -5,7 +5,6 @@ import logo from "../assets/images/Logo.png";
 import smallLogo from '../assets/images/book-square.png';
 import { PiBookOpenTextBold } from "react-icons/pi";
 import { Button } from "react-bootstrap";
-
 const Sidebar = () => {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -82,12 +81,12 @@ const Sidebar = () => {
           borderRadius: "10px",
         }}
       >
-        {isSidebarCollapsed?<Link to="#" style={{ textDecoration: "none", color: "black" }}>
+        {isSidebarCollapsed?<Link to="/task-page" style={{ textDecoration: "none", color: "black" }}>
           <ListItem button style={{ fontWeight: "100", fontSize: "40px" }}>
             <PiBookOpenTextBold style={{ marginLeft: "-25px" }} />
            
           </ListItem>
-        </Link>: <Link to="#" style={{ textDecoration: "none", color: "black" }}>
+        </Link>: <Link to="/task-page" style={{ textDecoration: "none", color: "black" }}>
           <ListItem button style={{ fontWeight: "100", fontSize: "40px",background: "rgba(245, 245, 247, 1)" }}>
             <PiBookOpenTextBold style={{ marginLeft: "20px" }} />
             {/* Adjust marginLeft based on collapse state */}

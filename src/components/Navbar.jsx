@@ -77,6 +77,7 @@ const Navbar = () => {
         alignContent: "center",
         justifyContent: "center",
         boxShadow: "none",
+        zIndex: "1000",
       }}
     >
       <Toolbar>

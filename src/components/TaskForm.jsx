@@ -15,7 +15,8 @@ import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { RevolvingDot } from "react-loader-spinner";
-const priorities = ["High", "Medium", "Low"];
+import { FaFlag, FaCircle } from "react-icons/fa";
+const priorities = ["High", "Normal", "Low"];
 const statuses = ["Pending", "Progress", "Complete"];
 const Assignees = ["Saeed", "Ahmed", "Javeeda"];
 const UserToken = localStorage.getItem("userToken");
@@ -91,7 +92,7 @@ const TaskForm = () => {
           userId: userId,
           assigneeId: selectedAssignee.id,
           dueDate: data.dueDate,
-          status:data.status,
+          status: data.status,
           priority: data.priority,
         },
         {
@@ -156,15 +157,19 @@ const TaskForm = () => {
               </Typography>
               <form onSubmit={handleSubmit(onSubmit)}>
                 {taskLoading ? (
-                   <Grid container spacing={1} textAlign={"center"}>
-                  <RevolvingDot
-                   isLoading={true}
-                    color="#546fff"
-                    ariaLabel="revolving-dot-loading"
-                  wrapperStyle={{ width: "100%" , display:"flex", justifyContent:"center"}}
-                    wrapperClass="revolingDotIcon"
-                  />
-                   </Grid>
+                  <Grid container spacing={1} textAlign={"center"}>
+                    <RevolvingDot
+                      isLoading={true}
+                      color="#546fff"
+                      ariaLabel="revolving-dot-loading"
+                      wrapperStyle={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                      wrapperClass="revolingDotIcon"
+                    />
+                  </Grid>
                 ) : (
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
@@ -226,6 +231,20 @@ const TaskForm = () => {
                                 key={priority}
                                 value={priority.toLowerCase()}
                               >
+                                <FaFlag
+                                  color={
+                                    priority === "High"
+                                      ? "#F25353"
+                                      : priority === "Normal"
+                                      ? "#75D653"
+                                      : priority === "Low"
+                                      ? "#FFB72A"
+                                      : "#000" 
+                                  }
+                                  size={20}
+                                  style={{ marginRight: "8px" }}
+                                />
+
                                 {priority}
                               </MenuItem>
                             ))}
@@ -254,6 +273,19 @@ const TaskForm = () => {
                                 key={status.toLowerCase()}
                                 value={status.toLowerCase()}
                               >
+                                <FaCircle
+                                  color={
+                                    status === "Pending"
+                                      ? "#FFB72B"
+                                      : status === "Progress"
+                                      ? "#75D653"
+                                      : status === "Complete"
+                                      ? "#F25353"
+                                      : "transparent"
+                                  }
+                                  size={12}
+                                  style={{ marginRight: "8px" }}
+                                />
                                 {status}
                               </MenuItem>
                             ))}

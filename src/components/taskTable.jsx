@@ -14,13 +14,27 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "../../src/App.css";
 import { RevolvingDot } from "react-loader-spinner";
-import { FaFlag } from "react-icons/fa";
+import { FaFlag, FaCircle } from "react-icons/fa";
 
 import Dialog from "./Dialog";
 import SimpleModal from "./Modal";
 import axios from "axios";
+
 function createData(Name, dueDate, Assignee, Priority, Status, Action) {
-  return { Name, dueDate, Assignee, Priority, Status, Action };
+  const parsedDueDate = new Date(dueDate);
+
+  // Format the date in the desired format (e.g., "MM/DD/YYYY")
+  const formattedDueDate = `${
+    parsedDueDate.getMonth() + 1
+  }/${parsedDueDate.getDate()}/${parsedDueDate.getFullYear()}`;
+  return {
+    Name,
+    dueDate: formattedDueDate,
+    Assignee,
+    Priority,
+    Status,
+    Action,
+  };
 }
 
 /* const tasks = [
@@ -67,7 +81,7 @@ function createData(Name, dueDate, Assignee, Priority, Status, Action) {
 ]; */
 
 const TaskTable = () => {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(null);
   const [openModal, setOpenModal] = React.useState(false);
   const [detailModal, setDetailModal] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState(null);
@@ -78,6 +92,7 @@ const TaskTable = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const filterTasksByPriority = (priority) => {
     if (priority === null) {
+      console.log(priority);
       setTasks(initialTasks);
     } else {
       // Filter tasks based on the selected priority
@@ -87,6 +102,16 @@ const TaskTable = () => {
       setTasks(filteredTasks);
     }
   };
+  const filterTasksByStatus = (status) => {
+    if (status === null) {
+      // Reset filter, show all tasks
+      setTasks(initialTasks);
+    } else {
+      // Filter tasks based on the selected status
+      const filteredTasks = initialTasks.filter((task) => task.status === status);
+      setTasks(filteredTasks);
+    }
+  }
   const notify = () =>
     toast.success("Task Delete Sucessfully!", {
       position: "top-center",
@@ -94,19 +119,31 @@ const TaskTable = () => {
       theme: "dark",
     });
   const statusNotify = () =>
-    toast.success("Task Delete Sucessfully!", {
+    toast.success("Status Chnaged Sucessfully!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const priorityNotify = () =>
+    toast.success("Priority Changed Sucessfully!", {
       position: "top-center",
       autoClose: 4000,
       theme: "dark",
     });
   const notifyError = () =>
-    toast.error("Status Updated Successfully!", {
+    toast.error("Task Delete Failed!", {
       position: "top-center",
       autoClose: 4000,
       theme: "dark",
     });
-  const statusErrorNotidy = () =>
+  const statusErrorNotify = () =>
     toast.error("Status Update Failed!", {
+      position: "top-center",
+      autoClose: 4000,
+      theme: "dark",
+    });
+  const priorityErrorNotify = () =>
+    toast.error("Priority Update Failed!", {
       position: "top-center",
       autoClose: 4000,
       theme: "dark",
@@ -163,17 +200,42 @@ const TaskTable = () => {
         }
       );
 
-      // Update the tasks list after status change
+      // // Update the tasks list after status change
+      // const updatedTasks = tasks.map((task) =>
+      //   task.id === taskId ? { ...task, status: newStatus } : task
+      // );
+      // setTasks(updatedTasks);
       const updatedTasks = tasks.map((task) =>
         task.id === taskId ? { ...task, status: newStatus } : task
       );
       setTasks(updatedTasks);
-      statusNotify()
+      statusNotify();
     } catch (error) {
-     statusErrorNotidy()
+      statusErrorNotify();
     }
   };
 
+  const handlePriorityChange = async (taskId, newPriority) => {
+    try {
+      await axios.put(
+        `https://itchy-puce-perch.cyclic.app/api/update-task-priority`,
+        {
+          id: taskId,
+          priority: newPriority,
+        }
+      );
+
+      // Update the tasks list after priority change
+      const updatedTasks = tasks.map((task) =>
+        task.id === taskId ? { ...task, priority: newPriority } : task
+      );
+      setTasks(updatedTasks);
+      priorityNotify();
+    } catch (error) {
+      priorityErrorNotify();
+    }
+  };
+  
   useEffect(() => {
     const fetchTasksForAdmin = async () => {
       try {
@@ -183,18 +245,36 @@ const TaskTable = () => {
             userId: userId,
           }
         );
-        // Set the initial tasks and status filter
-        const initialTasksWithDefaultStatus = response.data.map((task) => {
+
+        // Map the tasks with formatted due date and priority as a numeric value
+        const mappedTasks = response.data.map((task) => {
+          const parsedDueDate = new Date(task.dueDate);
+          const formattedDueDate = `${
+            parsedDueDate.getMonth() + 1
+          }/${parsedDueDate.getDate()}/${parsedDueDate.getFullYear()}`;
+
           return {
             ...task,
             statusFilter: task.status,
+            dueDate: formattedDueDate,
+            priorityValue:
+              task.priority === "high"
+                ? 0
+                : task.priority === "normal"
+                ? 1
+                : 2,
           };
         });
 
-        setInitialTasks(initialTasksWithDefaultStatus);
-        setTasks(initialTasksWithDefaultStatus);
+        // Sort tasks based on priority (High -> Normal -> Low)
+        const sortedTasks = mappedTasks.sort(
+          (a, b) => a.priorityValue - b.priorityValue
+        );
+
+        setInitialTasks(sortedTasks);
+        setTasks(sortedTasks);
         setLoading(false);
-        console.log(response);
+        console.log(sortedTasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
@@ -202,6 +282,7 @@ const TaskTable = () => {
 
     fetchTasksForAdmin();
   }, [userId]);
+
 
   console.log(tasks);
 
@@ -212,7 +293,7 @@ const TaskTable = () => {
         maxWidth: "1620px",
         marginLeft: "18rem",
         marginTop: "6rem ",
-        height: "88vh",
+        height: "86vh",
         background: "rgba(245, 245, 247, 1)",
         border: "2px solid rgba(245, 245, 247, 1)",
       }}
@@ -222,6 +303,7 @@ const TaskTable = () => {
           open={detailModal}
           onClose={handleCloseModal2}
           value={selectedTask}
+          setTasks={setTasks}
         />
       )}
       <div
@@ -229,35 +311,73 @@ const TaskTable = () => {
         style={{
           maxWidth: "1500px",
           marginLeft: "2rem",
-          marginTop: "5rem",
+          marginTop: "4rem",
           background: "rgba(245, 245, 247, 1)",
         }}
       >
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             marginBottom: "20px",
           }}
         >
-          <Select
-            value={priorityFilter}
-            onChange={(e) => {
-              setPriorityFilter(e.target.value);
-              filterTasksByPriority(e.target.value);
-            }}
-            style={{
-              marginRight: "10px",
-              background: "rgba(84, 111, 255, 1)",
-              width: "100px",
-              borderRadius: "10px",
-            }}
-          >
-            <MenuItem value={null}>All Priorities</MenuItem>
-            <MenuItem value="high">High</MenuItem>
-            <MenuItem value="normal">Normal</MenuItem>
-            <MenuItem value="low">Low</MenuItem>
-          </Select>
+    <Select
+  value={priorityFilter || ''}
+  onChange={(e) => {
+    setPriorityFilter(e.target.value);
+    filterTasksByPriority(e.target.value);
+  }}
+  style={{ marginRight: "10px", background: "rgba(84, 111, 255, 1)", width: "200px", borderRadius: "10px", color:'white', border:'none', outline: 'none' }} 
+  displayEmpty
+  inputProps={{ 'aria-label': 'Without label' }}
+>
+  <MenuItem value="" disabled>
+    Select Priority
+  </MenuItem>
+  <MenuItem value={null}>All Priorities</MenuItem>
+  <MenuItem value="high">
+    <FaFlag color="#F25353" size={18} style={{ marginRight: "8px" }} />
+    High
+  </MenuItem>
+  <MenuItem value="normal">
+    <FaFlag color="#75D653" size={18} style={{ marginRight: "8px" }} />
+    Normal
+  </MenuItem>
+  <MenuItem value="low">
+    <FaFlag color="#FFB72A" size={18} style={{ marginRight: "8px" }} />
+    Low
+  </MenuItem>
+</Select>
+
+<Select
+  value={statusFilter || ''}
+  onChange={(e) => {
+    setStatusFilter(e.target.value);
+    filterTasksByStatus(e.target.value);
+  }}
+  style={{ marginRight: "10px", background: "rgba(84, 111, 255, 1)", width: "200px", borderRadius: "10px", color:'white', border:'none', outline:'none' }}
+  displayEmpty
+  inputProps={{ 'aria-label': 'Without label' }}
+>
+  <MenuItem value="" disabled>
+    Select Status
+  </MenuItem>
+  <MenuItem value={null}>All Status</MenuItem>
+  <MenuItem value="pending">
+    <FaCircle color="#FFB72B" size={18} style={{ marginRight: "8px" }} />
+    Pending
+  </MenuItem>
+  <MenuItem value="progress">
+    <FaCircle color="#75D653" size={18} style={{ marginRight: "8px" }} />
+    Active
+  </MenuItem>
+  <MenuItem value="complete">
+    <FaCircle color="#F25353" size={18} style={{ marginRight: "8px" }} />
+    Closed
+  </MenuItem>
+</Select>
+
           <Link
             to="/create-task"
             style={{
@@ -269,6 +389,7 @@ const TaskTable = () => {
               borderRadius: "10px",
               display: "flex",
               justifyContent: "center",
+              marginLeft:'34rem'
             }}
           >
             <Button color="inherit">Create Task</Button>
@@ -280,18 +401,19 @@ const TaskTable = () => {
           style={{
             border: "1px solid rgba(0, 0, 0, 0.2)",
             maxHeight: "450px",
-            //  maxWidth: "100%",
+              maxWidth: "97%",
+              borderRadius: "10px",
             overflowY: "auto",
           }}
         >
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
-              <TableRow>
+            <TableRow style={{ position: "sticky", top: 0, background: "white", zIndex: 1 }}>
                 <TableCell>Name</TableCell>
                 <TableCell align="right">Due Date</TableCell>
                 <TableCell align="right">Assignee</TableCell>
-                <TableCell align="right">priority</TableCell>
-                <TableCell align="right">Status</TableCell>
+                <TableCell align="center">priority</TableCell>
+                <TableCell align="center">Status</TableCell>
                 <TableCell align="right">Action</TableCell>
               </TableRow>
             </TableHead>
@@ -380,28 +502,50 @@ const TaskTable = () => {
                       align="right"
                       style={{ fontWeight: "600", fontSize: "1rem" }}
                     >
-                      {task.priority ? (
-                        <FaFlag
-                          color={
-                            task.priority === "high"
-                              ? "#F25353"
-                              : task.priority === "normal"
-                              ? "#75D653"
-                              : "#FFB72A"
-                          }
-                          size={20}
-                        />
-                      ) : (
-                        <FaFlag color="green" size={20} />
-                      )}
-                      {task.priority || "Medium"}
+                      <Select
+                        value={task && task.priority}
+                        onChange={(e) => handlePriorityChange(task.id, e.target.value)}
+                        variant="outlined"
+                        style={{
+                          minWidth: "120px",
+                          height: "40px",
+                          border: "none",
+                          outline: "none",
+                        }}
+                      >
+                        <MenuItem value="high">
+                          <FaFlag
+                            color="#F25353"
+                            size={20}
+                            style={{ marginRight: "8px" }}
+                          />
+                          High
+                        </MenuItem>
+                        <MenuItem value="normal">
+                          <FaFlag
+                            color="#75D653"
+                            size={20}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Normal
+                        </MenuItem>
+                        <MenuItem value="low">
+                          <FaFlag
+                            color="#FFB72A"
+                            size={20}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Low
+                        </MenuItem>
+                      </Select>
                     </TableCell>
+
                     <TableCell
                       align="right"
                       style={{ fontWeight: "600", fontSize: "1rem" }}
                     >
                       <Select
-                        value={task.status}
+                        value={task && task.status}
                         onChange={(e) =>
                           handleStatusChange(task.id, e.target.value)
                         }
@@ -411,7 +555,7 @@ const TaskTable = () => {
                           outline: "none",
                           height: "40px",
                           color: "white",
-                          fontWeight:'700',
+                          fontWeight: "700",
                           width: "150px",
                           backgroundColor:
                             task.status === "pending"
@@ -424,9 +568,30 @@ const TaskTable = () => {
                           borderRadius: "10px",
                         }}
                       >
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="progress">Active</MenuItem>
-                        <MenuItem value="complete">Closed</MenuItem>
+                        <MenuItem value="pending">
+                          <FaCircle
+                            color="#FFB72B"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Pending
+                        </MenuItem>
+                        <MenuItem value="progress">
+                          <FaCircle
+                            color="#75D653"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Active
+                        </MenuItem>
+                        <MenuItem value="complete">
+                          <FaCircle
+                            color="#F25353"
+                            size={12}
+                            style={{ marginRight: "8px" }}
+                          />
+                          Closed
+                        </MenuItem>
                       </Select>
                     </TableCell>
                     <TableCell
