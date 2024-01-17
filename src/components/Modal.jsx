@@ -182,9 +182,10 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
               color: "#546FFF",
               lineHeight: "150%",
               letterSpacing: "-0.48px",
+              marginLeft:'2rem',
             }}
           >
-            {value.Name}
+            {value.title}
           </h2>
           <div
             className="modal-p"
