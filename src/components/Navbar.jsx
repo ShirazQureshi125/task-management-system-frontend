@@ -34,7 +34,7 @@ const Navbar = () => {
     try {
       // Make a request to the backend logout endpoint
       const response = await fetch(
-        "https://itchy-puce-perch.cyclic.app/api/logout",
+        "https://cute-slip-eel.cyclic.app/api/logout",
         {
           method: "POST",
           headers: {

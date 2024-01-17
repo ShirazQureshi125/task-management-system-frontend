@@ -97,7 +97,7 @@ const notifyError = () =>
   const handlePriorityChange = async (taskId, newPriority) => {
     try {
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-priority`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-priority`,
         {
           id: taskId,
           priority: newPriority,
@@ -119,7 +119,7 @@ const notifyError = () =>
       try {
         //const userId = req.userId;
         const response = await axios.post(
-          "https://itchy-puce-perch.cyclic.app/api/user-task",
+          "https://cute-slip-eel.cyclic.app/api/user-task",
           {
             userId: userId,
           }
@@ -143,7 +143,7 @@ const notifyError = () =>
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       // Send a request to your backend API to update the task status
-      await axios.put(`https://itchy-puce-perch.cyclic.app/api/update-task-status`, {
+      await axios.put(`https://cute-slip-eel.cyclic.app/api/update-task-status`, {
         id: taskId,
         status: newStatus,
       });

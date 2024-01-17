@@ -56,7 +56,7 @@ const SignUp = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://itchy-puce-perch.cyclic.app/api/user-register",
+        "https://cute-slip-eel.cyclic.app/api/user-register",
         modifiedData
       );
       if (response.status === 200) {

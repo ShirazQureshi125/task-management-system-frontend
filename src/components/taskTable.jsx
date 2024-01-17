@@ -168,7 +168,7 @@ const TaskTable = () => {
     try {
       // Send a request to your backend API to delete the task
       await axios.delete(
-        `https://itchy-puce-perch.cyclic.app/api/delete-task`,
+        `https://cute-slip-eel.cyclic.app/api/delete-task`,
         {
           data: { id: taskId, userId: userId }, // Provide necessary data for the backend API
         }
@@ -193,7 +193,7 @@ const TaskTable = () => {
     try {
       // Send a request to your backend API to update the task status
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-status`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-status`,
         {
           id: taskId,
           status: newStatus,
@@ -218,7 +218,7 @@ const TaskTable = () => {
   const handlePriorityChange = async (taskId, newPriority) => {
     try {
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-priority`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-priority`,
         {
           id: taskId,
           priority: newPriority,
@@ -240,7 +240,7 @@ const TaskTable = () => {
     const fetchTasksForAdmin = async () => {
       try {
         const response = await axios.post(
-          `https://itchy-puce-perch.cyclic.app/api/alltask`,
+          `https://cute-slip-eel.cyclic.app/api/alltask`,
           {
             userId: userId,
           }

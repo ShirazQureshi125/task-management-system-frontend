@@ -47,7 +47,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
   // const fetchTasksForUser = async () => {
   //   try {
   //     const response = await axios.post(
-  //       "https://itchy-puce-perch.cyclic.app/api/user-task",
+  //       "https://cute-slip-eel.cyclic.app/api/user-task",
   //       { userId: userId }
   //     );
   //     const initialTasksWithDefaultStatus = response.data.map((task) => {
@@ -72,7 +72,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
     try {
       // Send a request to your backend API to update the task status
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-status`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-status`,
         {
           id: taskId,
           status: newStatus,
@@ -93,7 +93,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
   const handlePriorityChange = async (taskId, newPriority) => {
     try {
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-priority`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-priority`,
         {
           id: taskId,
           priority: newPriority,
@@ -120,7 +120,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
     try {
       // Send a request to your backend API to update the task description
       await axios.put(
-        `https://itchy-puce-perch.cyclic.app/api/update-task-description`,
+        `https://cute-slip-eel.cyclic.app/api/update-task-description`,
         {
           id: value.id,
           description: editedDescription,
