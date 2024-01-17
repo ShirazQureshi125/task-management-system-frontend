@@ -479,7 +479,6 @@ const TaskTable = () => {
                         fontSize: "1rem",
                         color: "rgba(84, 111, 255, 1)",
                         cursor: "pointer",
-                        textDecoration: "underline",
                       }}
                       onClick={() => handleTaskClick(task)}
                     >

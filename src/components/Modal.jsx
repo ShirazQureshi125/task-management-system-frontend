@@ -5,13 +5,17 @@ import { Select, MenuItem } from "@mui/material";
 import { FaFlag, FaCircle } from "react-icons/fa";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { RevolvingDot } from "react-loader-spinner";
 
+import '../App.css';
 const SimpleModal = ({ open, onClose, value, setTasks }) => {
   const [initialTasks, setInitialTasks] = useState([]);
   const [status, setStatus] = useState(value.status);
   const [priority, setPriority] = useState(value.priority);
   const [editingDescription, setEditingDescription] = useState(false);
   const [editedDescription, setEditedDescription] = useState(value.description);
+  const [loading, setLoading] = useState(false);
+
   const userID = localStorage.getItem("userData");
   const userId = JSON.parse(userID);
 
@@ -122,7 +126,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
           description: editedDescription,
         }
       );
-
+        setLoading(true);
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === value.id
@@ -144,6 +148,8 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
         autoClose: 4000,
         theme: "dark",
       });
+    }finally{
+      setLoading(false);
     }
   };
   return (
@@ -170,6 +176,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="task-modal">
+          
           <h2
             style={{
               color: "#546FFF",
@@ -282,6 +289,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
              Admin
             </p>
           </div>
+        
           <div
         className="modal-discription"
         style={{
@@ -333,7 +341,7 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
       <div style={{ marginTop: "1rem" }}>
         {editingDescription ? (
           // Show save button when in editing mode
-          <Button onClick={handleSaveDescription}  style={{ marginLeft: "2rem", background: "#546fff " }}>
+          <Button className="save_button" onClick={handleSaveDescription}  style={{ marginLeft: "2rem", background: "#546fff " }}>
             Save Description
           </Button>
         ) : (
@@ -341,12 +349,14 @@ const SimpleModal = ({ open, onClose, value, setTasks }) => {
           <Button
             style={{ marginLeft: "2rem", background: "#546fff " }}
             onClick={handleEditDescription}
+            className="save_button"
           >
             Edit Description
           </Button>
         )}
+        
       </div>
-    
+   
         </Modal.Body>
       </div>
     </Modal>
